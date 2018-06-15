@@ -53,7 +53,7 @@ class ViewController: UIViewController {
         
         YQChainTask { (task) in
             //上传图片
-            self.uploadImage(img, resultHandle: { (success, imgurl) in
+            self.uploadImage(img) { (success, imgurl) in
                 if success == true, imgurl != nil {
                     //图片上传成功了
                     outSideImgURL = imgurl!
@@ -62,7 +62,7 @@ class ViewController: UIViewController {
                 } else {
                     //提示用户出错了
                 }
-            })
+            }
         }.next { (task) in
             // 执行一个异步任务，比如调一下服务器的接口
             print("把图片的URL告诉服务器：\(outSideImgURL)")
@@ -137,6 +137,7 @@ class ViewController: UIViewController {
             resultHandle?()
         }
     }
+    
 
 }
 
