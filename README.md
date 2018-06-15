@@ -99,7 +99,7 @@ if true {
 
 ```Swift
 //上传图片
-self.uploadImage(UIImage()) { (success, imgurl) in
+self.uploadImage(UIImage(), resultHandle: { (success, imgurl) in
     if success == true, imgurl != nil {
         //图片上传成功了
         // 执行一个异步任务，比如调一下服务器的接口
@@ -143,20 +143,20 @@ YQChainTask { (task) in
 }.next { (task) in
     // 执行一个异步任务，比如调一下服务器的接口
     print("把图片的URL告诉服务器：\(outSideImgURL)")
-    self.doAnAsynchronousTaskNow(resultHandle: {
+    self.doAnAsynchronousTaskNow() {
         if true {
             //OK了，再进行下一个任务
             task.nextStep()
         }
-    })
+    }
 }.next { (task) in
     // 再执行一个异步任务
     print("第三个任务")
-    self.doAnAsynchronousTaskNow(resultHandle: {
+    self.doAnAsynchronousTaskNow() {
         if true {
             //OK了
         }
-    })
+    }
 }.beginByStep()
 ```
 
