@@ -30,6 +30,21 @@ class ViewController: UIViewController {
             print("CCC")
         }.beginByStep()
         
+        // 实用的，加入有N个If要嵌套
+        YQChainTask { (task) in
+            if true {
+                task.nextStep()
+            }
+        }.next { (task) in
+            if true {
+                task.nextStep()
+            }
+        }.next { (task) in
+            if true {
+                task.nextStep()
+            }
+        }.beginByStep()
+        
         // 复杂的
         // 假设有一张图片需要上传，上传完了以后需要再调一下服务器的某个接口，再之后再做一个异步任务
         let img = UIImage()
