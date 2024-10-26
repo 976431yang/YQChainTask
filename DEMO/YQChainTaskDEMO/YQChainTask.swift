@@ -35,6 +35,7 @@ public class YQChainTask {
     
     private var nextTask: YQChainTask?
     private var _action: ((YQChainTask) -> Void)?
+    var shouldDoInBackground = false
     
     //如果只初始化一个任务，可以忽略task
     public init(action:@escaping ((YQChainTask) -> Void)) {
@@ -61,10 +62,39 @@ public class YQChainTask {
         return self
     }
     
+    /// 返回值是 根任务
+    /// 根任务如果是用beginByStep()执行，那么可以使用block里的task.nextStep()来手动触发下一步操作
+    @discardableResult
+    public func nextInBackGround(_ nextAction: @escaping (YQChainTask) -> Void ) -> YQChainTask {
+        let newTask = YQChainTask(action: nextAction)
+        newTask.shouldDoInBackground = true
+        
+        if nextTask != nil {
+            var endTask = nextTask
+            while endTask?.nextTask != nil {
+                endTask = endTask?.nextTask
+            }
+            endTask?.nextTask = newTask
+        } else {
+            nextTask = newTask
+        }
+        
+        return self
+    }
+    
     //顺序执行每一步
     public func begin() {
-        _action?(self)
-        nextTask?.begin()
+        if (shouldDoInBackground) {
+            DispatchQueue.global().async {
+                self._action?(self)
+                DispatchQueue.main.async {
+                    self.nextTask?.begin()
+                }
+            }
+        } else {
+            _action?(self)
+            nextTask?.begin()
+        }
     }
     
     /// 配合nextStep()一步一步的调用
@@ -75,6 +105,24 @@ public class YQChainTask {
     //执行下一步
     public func nextStep() {
         nextTask?.beginByStep()
+    }
+    
+    public func autoRollInAsync() {
+        _action?(self)
+        DispatchQueue.main.async {
+            self.nextTask?.autoRollInAsync()
+        }
+    }
+    
+    public func beginByAsync() {
+        shouldDoInBackground = true
+        DispatchQueue.main.async {
+            self.autoRollInAsync()
+        }
+    }
+    
+    public func stop() {
+        nextTask = nil;
     }
     
 }
