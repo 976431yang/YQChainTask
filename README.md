@@ -37,6 +37,69 @@ Swift链式调用
     }.beginByStep()
 ```
 
+#### 异步任务
+
+- 每步都在后台线程执行
+
+```Swift 
+    YQChainTask { _ in
+        print("in task1 \(Date())")
+        sleep(3)
+        print("end task1 \(Date())")
+    }.next({ _ in
+        print("in task2 \(Date())")
+        sleep(3)
+        print("end task2 \(Date())")
+    }).beginByAsync()
+    
+    print("task submited")
+
+
+    /*
+     task submited
+     
+     in task1 2024-10-26 10:36:36 +0000
+     end task1 2024-10-26 10:36:39 +0000
+     
+     in task2 2024-10-26 10:36:39 +0000
+     end task2 2024-10-26 10:36:42 +0000
+     */
+```
+
+- 混合主线程和后台线程
+
+```Swift 
+    YQChainTask { _ in
+        print("in sync task1 \(Date()) \(Thread.current)")
+        sleep(3)
+        print("end sync task1 \(Date()) \(Thread.current)")
+    }.nextInBackGround({ _ in
+        print("in async task2 \(Date()) \(Thread.current)")
+        sleep(3)
+        print("end async task2 \(Date()) \(Thread.current)")
+    }).next({ _ in
+        print("in sync task3 \(Date()) \(Thread.current)")
+        sleep(3)
+        print("end sync task3 \(Date()) \(Thread.current)")
+    }).begin()
+    
+    print("task submited")
+
+    /*
+     in sync task1 2024-10-26 10:42:46 +0000 <_NSMainThread: 0x60000170c000>{number = 1, name = main}
+     end sync task1 2024-10-26 10:42:49 +0000 <_NSMainThread: 0x60000170c000>{number = 1, name = main}
+     
+     task submited
+     
+     in async task2 2024-10-26 10:42:49 +0000 <NSThread: 0x6000017b10c0>{number = 8, name = (null)}
+     end async task2 2024-10-26 10:42:52 +0000 <NSThread: 0x6000017b10c0>{number = 8, name = (null)}
+     
+     in sync task3 2024-10-26 10:42:52 +0000 <_NSMainThread: 0x60000170c000>{number = 1, name = main}
+     end sync task3 2024-10-26 10:42:55 +0000 <_NSMainThread: 0x60000170c000>{number = 1, name = main}
+     */
+```
+
+
 ### 用途示例
 
 #### 解决N个If嵌套
@@ -159,69 +222,6 @@ Swift链式调用
         }
     }.beginByStep()
 ```
-
-#### 异步任务
-
-- 每步都在后台线程执行
-
-```Swift 
-    YQChainTask { _ in
-        print("in task1 \(Date())")
-        sleep(3)
-        print("end task1 \(Date())")
-    }.next({ _ in
-        print("in task2 \(Date())")
-        sleep(3)
-        print("end task2 \(Date())")
-    }).beginByAsync()
-    
-    print("task submited")
-
-
-    /*
-     task submited
-     
-     in task1 2024-10-26 10:36:36 +0000
-     end task1 2024-10-26 10:36:39 +0000
-     
-     in task2 2024-10-26 10:36:39 +0000
-     end task2 2024-10-26 10:36:42 +0000
-     */
-```
-
-- 混合主线程和后台线程
-
-```Swift 
-    YQChainTask { _ in
-        print("in sync task1 \(Date()) \(Thread.current)")
-        sleep(3)
-        print("end sync task1 \(Date()) \(Thread.current)")
-    }.nextInBackGround({ _ in
-        print("in async task2 \(Date()) \(Thread.current)")
-        sleep(3)
-        print("end async task2 \(Date()) \(Thread.current)")
-    }).next({ _ in
-        print("in sync task3 \(Date()) \(Thread.current)")
-        sleep(3)
-        print("end sync task3 \(Date()) \(Thread.current)")
-    }).begin()
-    
-    print("task submited")
-
-    /*
-     in sync task1 2024-10-26 10:42:46 +0000 <_NSMainThread: 0x60000170c000>{number = 1, name = main}
-     end sync task1 2024-10-26 10:42:49 +0000 <_NSMainThread: 0x60000170c000>{number = 1, name = main}
-     
-     task submited
-     
-     in async task2 2024-10-26 10:42:49 +0000 <NSThread: 0x6000017b10c0>{number = 8, name = (null)}
-     end async task2 2024-10-26 10:42:52 +0000 <NSThread: 0x6000017b10c0>{number = 8, name = (null)}
-     
-     in sync task3 2024-10-26 10:42:52 +0000 <_NSMainThread: 0x60000170c000>{number = 1, name = main}
-     end sync task3 2024-10-26 10:42:55 +0000 <_NSMainThread: 0x60000170c000>{number = 1, name = main}
-     */
-```
-
 
 #### YQChainTask的实现只有50行不到，有兴趣的可以看看源码
 
